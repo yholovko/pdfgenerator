@@ -1,18 +1,12 @@
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.encoding.EncodingManager;
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,7 +22,7 @@ public class WatkinsInfo {
     private PDFont robotoBold;
     private float nextYPos;         //equals lastY + lineHeight
 
-    public void createPdf(String outputFileName) throws IOException, COSVisitorException {
+    public void createPdf(String outputFileName) throws IOException {
         PDDocument document = new PDDocument();
         PDPage page1 = new PDPage(new PDRectangle(215.9f * Units.MM_TO_UNITS, 279.4f * Units.MM_TO_UNITS));
         PDRectangle rect = page1.getMediaBox();
@@ -37,27 +31,25 @@ public class WatkinsInfo {
         PDPageContentStream contentStream = new PDPageContentStream(document, page1);
 
         try {
-            robotoLight = PDTrueTypeFont.loadTTF(document, new FileInputStream(new File("src/pdf-resourses/roboto-ttf/Roboto-Light.ttf")));
-            robotoBold = PDTrueTypeFont.loadTTF(document, new FileInputStream(new File("src/pdf-resourses/roboto-ttf/Roboto-Bold.ttf")));
+            robotoLight = PDType0Font.load(document, new FileInputStream(new File("src/pdf-resourses/roboto-ttf/Roboto-Light.ttf")));
+            robotoBold = PDType0Font.load(document, new FileInputStream(new File("src/pdf-resourses/roboto-ttf/Roboto-Bold.ttf")));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         try {
-            BufferedImage awtImage = ImageIO.read(new FileInputStream(new File("src/pdf-resourses//temp/Watkins_Logo_original.jpg")));
-            PDXObjectImage ximage = new PDPixelMap(document, awtImage);
-            contentStream.drawXObject(ximage, 59.52f, rect.getHeight() - 60.00f - 42.51f, 60.00f, 60.00f);
+            PDImageXObject ximage = PDImageXObject.createFromFile(new File("src/pdf-resourses//temp/Watkins_Logo_original.jpg"), document);
+            contentStream.drawImage(ximage, 59.52f, rect.getHeight() - 60.00f - 42.51f, 60.00f, 60.00f);
         } catch (FileNotFoundException | NullPointerException e) {
             e.printStackTrace();
         }
 
         try {
-            BufferedImage awtImage = ImageIO.read(new FileInputStream(new File("src/pdf-resourses//temp/mudras.jpg")));
-            PDXObjectImage ximage = new PDPixelMap(document, awtImage);
-            float scale = awtImage.getWidth() / 128.01f;
-            float height = awtImage.getHeight() / scale;
+            PDImageXObject ximage = PDImageXObject.createFromFile(new File("src/pdf-resourses//temp/mudras.jpg"), document);
+            float scale = ximage.getWidth() / 128.01f;
+            float height = ximage.getHeight() / scale;
 
-            contentStream.drawXObject(ximage, 418.39f, rect.getHeight() - height - 42.51f, 128.01f, height);
+            contentStream.drawImage(ximage, 418.39f, rect.getHeight() - height - 42.51f, 128.01f, height);
         } catch (FileNotFoundException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -75,9 +67,9 @@ public class WatkinsInfo {
         drawMultiLineText("SALES POINTS:", 59.52f, nextYPos + ((1.6f * 9) / 2) - 1.6f * 9 - 1, 351, page1, contentStream, robotoBold, 11, WATKINS_PRIMARY_COLOR, 1.2f * 11, 0f, false);
 
         ArrayList<String> list = new ArrayList<>();
-        list.add(0, String.valueOf(Character.toChars(EncodingManager.INSTANCE.getEncoding(COSName.WIN_ANSI_ENCODING).getCode("bullet"))) + " The first full-colour photographic book on the ancient, life-enhancing art of mudras");
-        list.add(1, String.valueOf(Character.toChars(EncodingManager.INSTANCE.getEncoding(COSName.WIN_ANSI_ENCODING).getCode("bullet"))) + " Experienced yoga and meditation teacher Swami Saradananda makes complex, spiritual concepts clear, accessible and relevant to modern life");
-        list.add(2, String.valueOf(Character.toChars(EncodingManager.INSTANCE.getEncoding(COSName.WIN_ANSI_ENCODING).getCode("bullet"))) + " Each chapter focuses on a key holistic benefit that will appeal to experienced MBS seekers and holistic health fans alike");
+        list.add(0, "• The first full-colour photographic book on the ancient, life-enhancing art of mudras");
+        list.add(1, "• Experienced yoga and meditation teacher Swami Saradananda makes complex, spiritual concepts clear, accessible and relevant to modern life");
+        list.add(2, "• Each chapter focuses on a key holistic benefit that will appeal to experienced MBS seekers and holistic health fans alike");
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
                 drawMultiLineText(list.get(i), 59.52f, nextYPos - 3, 351, page1, contentStream, robotoLight, 9, WATKINS_SECONDARY_COLOR, 1.6f * 9, 0f, false);
@@ -88,15 +80,21 @@ public class WatkinsInfo {
 
         drawMultiLineText("SYNOPSIS:", 59.52f, nextYPos + ((1.6f * 9) / 2) - 1.6f * 9 - 1, 351, page1, contentStream, robotoBold, 11, WATKINS_PRIMARY_COLOR, 1.2f * 11, 0f, false);
 
-        String description = "The popularity of the part-time vegetarian (flexitarian) diet – one that is largely vegetarian but occasionally includes poultry, meat and seafood – is growing. As meat and fish become more and more expensive and the health benefits of a vegetarian diet are well documented, The Part-Time Vegetarian taps into a growing trend of flexitarian eating. Rather than meat or fish taking centre stage, the recipes in this book showcase the often under-used vegetables, grains, legumes, nuts, eggs and dairy foods – and show just how delicious and varied this way of eating can be. \n" +
-                "Organised by meal type, the book features chapters on Breakfasts & Brunches, Light Meals, Weekday Dinners, Weekend Cooking and Food for Sharing. The recipes are all vegetarian, but the majority include a Part-Time Variation, showing you how to include meat or fish if you feel like it. It’s the perfect book for the casual vegetarian looking for a nutritious and environmentally intelligent way to eat, those who want to cater for a vegetarian, or the committed vegetarian who wants to try new recipes. The Part-Time Vegetarian makes vegetarian eating doable.";
+        String description = "\"Humorous and wise, gritty and real, Brett Moran is a spiritual gangsta who knows the score about transformation. In Wake the F**k Up he shares the tools and techniques he’s learnt on his journey so you can do the same. Whether you’re looking to overhaul your health and energy, achieve your goals, or overcome negative behaviours and patterns, Wake the F**k Up will show you how to:\n" +
+                "Tap into the natural highs of life by using meditation and mindfulness to help you overcome negative thoughts and feelings before creating a vision for what you want to achieve.\n" +
+                "Move from lost to alive by learning how to smash negative habits and re-engineering your energy through healthy lifestyle habits and a by creating a positive mind-set.\n" +
+                "Be successful and happy no matter what life throws at you through simple gratitude practices and living more authentically.\n" +
+                "Real-life stories throughout will inspire you to think big and achieve even bigger while tough questions will help you overcome negative conditioning and start living the life you want, every day becomes an epic adventure.\n" +
+                "\"\"I'm a big fan of Brett's work. He speaks with an authenticity that inspires you to truly be yourself\"\"\n" +
+                "Dr David Hamilton, Bestselling Author When you wake the f*ck up\"\n";
+
         String[] parts = description.split("\n");
 
         for (int i = 0; i < parts.length; i++) {
             if (i == 0) {
-                drawMultiLineText(parts[i], 59.52f, nextYPos - 3, 351, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, true);
+                drawMultiLineText(parts[i], 59.52f, nextYPos - 3, 351 - 11, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, true);
             } else {
-                drawMultiLineText(parts[i], 59.52f, nextYPos, 351, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, true);
+                drawMultiLineText(parts[i], 59.52f, nextYPos, 351 - 11, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, true);
             }
         }
 
@@ -139,13 +137,13 @@ public class WatkinsInfo {
             }
 
             // test the width of the current line + the current word
-            int size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000) ;
-//            if (isFirstParagraph) {
-//                size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000) + ;
-//                isFirstParagraph = false;
-//            } else{
-//                size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000);
-//            }
+            int size;
+            if (isFirstParagraph) {
+                size = (int) ((fontSize * font.getStringWidth(myLine + word) / 1000) + 11.33f);
+                isFirstParagraph = false;
+            } else{
+                size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000);
+            }
             if (size > allowedWidth) {
                 // if the line would be too long with the current word, add the line without the current word
                 lines.add(myLine);
@@ -160,18 +158,20 @@ public class WatkinsInfo {
         // add the rest to lines
         lines.add(myLine);
 
+        isFirstParagraph = isFirstParagraphTemp;
+
         for (String line : lines) {
             contentStream.beginText();
             contentStream.appendRawCommands(String.valueOf(charSpacing) + " Tc\n");
             contentStream.setFont(font, fontSize);
             contentStream.setNonStrokingColor(fontColor);
             if (isFirstParagraph) {
-                contentStream.moveTextPositionByAmount(x + 11.34f, y);
+                contentStream.newLineAtOffset(x + 11.33f, y);
                 isFirstParagraph = false;
             } else {
-                contentStream.moveTextPositionByAmount(x, y);
+                contentStream.newLineAtOffset(x, y);
             }
-            contentStream.drawString(line);
+            contentStream.showText(line);
             contentStream.endText();
             y -= lineHeight;
             nextYPos = y;
