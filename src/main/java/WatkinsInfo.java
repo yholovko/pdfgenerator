@@ -13,6 +13,8 @@ import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,14 +37,14 @@ public class WatkinsInfo {
         PDPageContentStream contentStream = new PDPageContentStream(document, page1);
 
         try {
-            robotoLight = PDTrueTypeFont.loadTTF(document, getClass().getResourceAsStream("/roboto/Roboto-Light.ttf"));
-            robotoBold = PDTrueTypeFont.loadTTF(document, getClass().getResourceAsStream("/roboto/Roboto-Bold.ttf"));
+            robotoLight = PDTrueTypeFont.loadTTF(document, new FileInputStream(new File("src/pdf-resourses/roboto-ttf/Roboto-Light.ttf")));
+            robotoBold = PDTrueTypeFont.loadTTF(document, new FileInputStream(new File("src/pdf-resourses/roboto-ttf/Roboto-Bold.ttf")));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         try {
-            BufferedImage awtImage = ImageIO.read(getClass().getResourceAsStream("/temp/Watkins_Logo_original.jpg"));
+            BufferedImage awtImage = ImageIO.read(new FileInputStream(new File("src/pdf-resourses//temp/Watkins_Logo_original.jpg")));
             PDXObjectImage ximage = new PDPixelMap(document, awtImage);
             contentStream.drawXObject(ximage, 59.52f, rect.getHeight() - 60.00f - 42.51f, 60.00f, 60.00f);
         } catch (FileNotFoundException | NullPointerException e) {
@@ -50,7 +52,7 @@ public class WatkinsInfo {
         }
 
         try {
-            BufferedImage awtImage = ImageIO.read(getClass().getResourceAsStream("/temp/mudras.jpg"));
+            BufferedImage awtImage = ImageIO.read(new FileInputStream(new File("src/pdf-resourses//temp/mudras.jpg")));
             PDXObjectImage ximage = new PDPixelMap(document, awtImage);
             float scale = awtImage.getWidth() / 128.01f;
             float height = awtImage.getHeight() / scale;
@@ -60,7 +62,6 @@ public class WatkinsInfo {
             e.printStackTrace();
         }
 
-        int line = 0;
         drawMultiLineText("Watkins", 162.70f, rect.getHeight() - 56.97f, 248, page1, contentStream, robotoLight, 18, WATKINS_PRIMARY_COLOR, 1.2f * 18, 2, false);
         drawMultiLineText("Advance Information", 162.70f, rect.getHeight() - 56.97f - 1.2f * 18, 248, page1, contentStream, robotoLight, 18, WATKINS_PRIMARY_COLOR, 1.2f * 18, 2, false);
         drawMultiLineText("Mudras for Modern Life", 59.52f, rect.getHeight() - 139.18f, 351, page1, contentStream, robotoLight, 22, WATKINS_MAIN_COLOR, 1.2f * 22, 0f, false);
