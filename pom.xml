@@ -8,5 +8,12 @@
     <artifactId>PdfGenerator</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>1.8.10</version>
+        </dependency>
+    </dependencies>
 
 </project>
