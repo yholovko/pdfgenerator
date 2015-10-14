@@ -35,8 +35,8 @@ public class WatkinsInfo {
         PDPageContentStream contentStream = new PDPageContentStream(document, page1);
 
         try {
-            robotoLight = PDTrueTypeFont.loadTTF(document, getClass().getResourceAsStream("/roboto-ttf/Roboto-Light.ttf"));
-            robotoBold = PDTrueTypeFont.loadTTF(document, getClass().getResourceAsStream("/roboto-ttf/Roboto-Bold.ttf"));
+            robotoLight = PDTrueTypeFont.loadTTF(document, getClass().getResourceAsStream("/roboto/Roboto-Light.ttf"));
+            robotoBold = PDTrueTypeFont.loadTTF(document, getClass().getResourceAsStream("/roboto/Roboto-Bold.ttf"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,24 +78,30 @@ public class WatkinsInfo {
         list.add(1, String.valueOf(Character.toChars(EncodingManager.INSTANCE.getEncoding(COSName.WIN_ANSI_ENCODING).getCode("bullet"))) + " Experienced yoga and meditation teacher Swami Saradananda makes complex, spiritual concepts clear, accessible and relevant to modern life");
         list.add(2, String.valueOf(Character.toChars(EncodingManager.INSTANCE.getEncoding(COSName.WIN_ANSI_ENCODING).getCode("bullet"))) + " Each chapter focuses on a key holistic benefit that will appeal to experienced MBS seekers and holistic health fans alike");
         for (int i = 0; i < list.size(); i++) {
-            if (i == 0)
+            if (i == 0) {
                 drawMultiLineText(list.get(i), 59.52f, nextYPos - 3, 351, page1, contentStream, robotoLight, 9, WATKINS_SECONDARY_COLOR, 1.6f * 9, 0f, false);
-            else
+            } else {
                 drawMultiLineText(list.get(i), 59.52f, nextYPos, 351, page1, contentStream, robotoLight, 9, WATKINS_SECONDARY_COLOR, 1.6f * 9, 0f, false);
+            }
         }
 
         drawMultiLineText("SYNOPSIS:", 59.52f, nextYPos + ((1.6f * 9) / 2) - 1.6f * 9 - 1, 351, page1, contentStream, robotoBold, 11, WATKINS_PRIMARY_COLOR, 1.2f * 11, 0f, false);
 
-        String description = "In this new, beautifully presented guide to the ancient art of mudras – an often overlooked Eastern practice that involves making established hand gestures to direct subtle energy to boost health and wellbeing – readers will discover how to integrate more than 60 mudras into their daily life and/or yoga and meditation practice for increased vitality and inner peace.\n" +
-                "After introductory chapters laying the foundation of mudras, the six central chapters show why and how to do the mudras themselves. Each chapter is dedicated to a different part of the hand and its corresponding element – fire (thumb), air (index finger), ether (middle finger), earth (ring finger), water (little finger) and mind (palm) – focusing on each element’s holistic benefits, whether boosting inner strength, relieving stress, enhancing creativity or increasing concentration. In addition, each mudra entry is enhanced with an accompanying chant, meditation, pranayama, asana, visualization, or personal report about the mudra's benefits.\n" +
-                "The book then ends with a series of highly useful mudra routines for a range of health issues, both physical and emotional – from anxiety and chronic fatigue to arthritis and headaches. There’s genuinely something for everyone in this beautiful new book on the health-enhancing art of mudras.";
+        String description = "\"Humorous and wise, gritty and real, Brett Moran is a spiritual gangsta who knows the score about transformation. In Wake the F**k Up he shares the tools and techniques he’s learnt on his journey so you can do the same. Whether you’re looking to overhaul your health and energy, achieve your goals, or overcome negative behaviours and patterns, Wake the F**k Up will show you how to:\n" +
+                "Tap into the natural highs of life by using meditation and mindfulness to help you overcome negative thoughts and feelings before creating a vision for what you want to achieve.\n" +
+                "Move from lost to alive by learning how to smash negative habits and re-engineering your energy through healthy lifestyle habits and a by creating a positive mind-set.\n" +
+                "Be successful and happy no matter what life throws at you through simple gratitude practices and living more authentically.\n" +
+                "Real-life stories throughout will inspire you to think big and achieve even bigger while tough questions will help you overcome negative conditioning and start living the life you want, every day becomes an epic adventure.\n" +
+                "\"\"I'm a big fan of Brett's work. He speaks with an authenticity that inspires you to truly be yourself\"\"\n" +
+                "Dr David Hamilton, Bestselling Author When you wake the f*ck up\"\n";
         String[] parts = description.split("\n");
 
         for (int i = 0; i < parts.length; i++) {
-            if (i == 0)
+            if (i == 0) {
                 drawMultiLineText(parts[i], 59.52f, nextYPos - 3, 351, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, true);
-            else
+            } else {
                 drawMultiLineText(parts[i], 59.52f, nextYPos, 351, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, true);
+            }
         }
 
         contentStream.close();
@@ -104,18 +110,18 @@ public class WatkinsInfo {
     }
 
     /**
-     * @param text              The text to write on the page.
-     * @param x                 The position on the x-axis.
-     * @param y                 The position on the y-axis.
-     * @param allowedWidth      The maximum allowed width(px) of the whole text (e.g. the width of the page - a defined margin).
-     * @param page              The page for the text.
-     * @param contentStream     The content stream to set the text properties and write the text.
-     * @param font              The font used to write the text.
-     * @param fontSize          The font size used to write the text.
-     * @param fontColor         The font color used to write the text.
-     * @param lineHeight        The line height of the font (typically 1.2 * fontSize or 1.5 * fontSize).
-     * @param charSpacing       The value of character spacing (0 - default value).
-     * @param isFirstParagraph  Put the paragraph for the first line.
+     * @param text             The text to write on the page.
+     * @param x                The position on the x-axis.
+     * @param y                The position on the y-axis.
+     * @param allowedWidth     The maximum allowed width(px) of the whole text (e.g. the width of the page - a defined margin).
+     * @param page             The page for the text.
+     * @param contentStream    The content stream to set the text properties and write the text.
+     * @param font             The font used to write the text.
+     * @param fontSize         The font size used to write the text.
+     * @param fontColor        The font color used to write the text.
+     * @param lineHeight       The line height of the font (typically 1.2 * fontSize or 1.5 * fontSize).
+     * @param charSpacing      The value of character spacing (0 - default value).
+     * @param isFirstParagraph Put the paragraph for the first line.
      * @return Count of printed lines.
      * @throws java.io.IOException
      */
