@@ -88,13 +88,8 @@ public class WatkinsInfo {
 
         drawMultiLineText("SYNOPSIS:", 59.52f, nextYPos + ((1.6f * 9) / 2) - 1.6f * 9 - 1, 351, page1, contentStream, robotoBold, 11, WATKINS_PRIMARY_COLOR, 1.2f * 11, 0f, false);
 
-        String description = "\"Humorous and wise, gritty and real, Brett Moran is a spiritual gangsta who knows the score about transformation. In Wake the F**k Up he shares the tools and techniques he’s learnt on his journey so you can do the same. Whether you’re looking to overhaul your health and energy, achieve your goals, or overcome negative behaviours and patterns, Wake the F**k Up will show you how to:\n" +
-                "Tap into the natural highs of life by using meditation and mindfulness to help you overcome negative thoughts and feelings before creating a vision for what you want to achieve.\n" +
-                "Move from lost to alive by learning how to smash negative habits and re-engineering your energy through healthy lifestyle habits and a by creating a positive mind-set.\n" +
-                "Be successful and happy no matter what life throws at you through simple gratitude practices and living more authentically.\n" +
-                "Real-life stories throughout will inspire you to think big and achieve even bigger while tough questions will help you overcome negative conditioning and start living the life you want, every day becomes an epic adventure.\n" +
-                "\"\"I'm a big fan of Brett's work. He speaks with an authenticity that inspires you to truly be yourself\"\"\n" +
-                "Dr David Hamilton, Bestselling Author When you wake the f*ck up\"\n";
+        String description = "The popularity of the part-time vegetarian (flexitarian) diet – one that is largely vegetarian but occasionally includes poultry, meat and seafood – is growing. As meat and fish become more and more expensive and the health benefits of a vegetarian diet are well documented, The Part-Time Vegetarian taps into a growing trend of flexitarian eating. Rather than meat or fish taking centre stage, the recipes in this book showcase the often under-used vegetables, grains, legumes, nuts, eggs and dairy foods – and show just how delicious and varied this way of eating can be. \n" +
+                "Organised by meal type, the book features chapters on Breakfasts & Brunches, Light Meals, Weekday Dinners, Weekend Cooking and Food for Sharing. The recipes are all vegetarian, but the majority include a Part-Time Variation, showing you how to include meat or fish if you feel like it. It’s the perfect book for the casual vegetarian looking for a nutritious and environmentally intelligent way to eat, those who want to cater for a vegetarian, or the committed vegetarian who wants to try new recipes. The Part-Time Vegetarian makes vegetarian eating doable.";
         String[] parts = description.split("\n");
 
         for (int i = 0; i < parts.length; i++) {
@@ -132,6 +127,7 @@ public class WatkinsInfo {
         java.util.List<String> lines = new ArrayList<>();
 
         String myLine = "";
+        boolean isFirstParagraphTemp = isFirstParagraph;
 
         // get all words from the text
         // keep in mind that words are separated by spaces -> "Lorem ipsum!!!!:)" -> words are "Lorem" and "ipsum!!!!:)"
@@ -143,7 +139,13 @@ public class WatkinsInfo {
             }
 
             // test the width of the current line + the current word
-            int size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000);
+            int size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000) ;
+//            if (isFirstParagraph) {
+//                size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000) + ;
+//                isFirstParagraph = false;
+//            } else{
+//                size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000);
+//            }
             if (size > allowedWidth) {
                 // if the line would be too long with the current word, add the line without the current word
                 lines.add(myLine);
