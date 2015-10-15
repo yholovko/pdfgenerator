@@ -222,7 +222,7 @@ public class PDF {
         isFirstParagraph = isFirstParagraphTemp;
 
         for (String line : lines) {
-            if (line.charAt(line.length() - 1) == ' ') {   //delete last empty symbol (for better right alignment)
+            if (line.length() != 0 && line.charAt(line.length() - 1) == ' ') {   //delete last empty symbol (for better right alignment)
                 line = line.substring(0, line.length() - 1);
             }
             contentStream.beginText();
