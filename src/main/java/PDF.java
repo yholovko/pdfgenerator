@@ -222,9 +222,6 @@ public class PDF {
         isFirstParagraph = isFirstParagraphTemp;
 
         for (String line : lines) {
-            if (line.length() != 0 && line.charAt(line.length() - 1) == ' ') {   //delete last empty symbol (for better right alignment)
-                line = line.substring(0, line.length() - 1);
-            }
             contentStream.beginText();
             contentStream.appendRawCommands(String.valueOf(charSpacing) + " Tc\n");
             contentStream.setFont(font, fontSize);
@@ -233,6 +230,10 @@ public class PDF {
                 contentStream.newLineAtOffset(x + 11.33f, y);
                 isFirstParagraph = false;
             } else if (isRightAlignment) {
+                if (line.length() != 0 && line.charAt(line.length() - 1) == ' ') {   //delete last empty symbol (for better right alignment)
+                    line = line.substring(0, line.length() - 1);
+                }
+
                 float lineWidth = (fontSize * font.getStringWidth(line) / 1000);
                 contentStream.newLineAtOffset(x + (allowedWidth - lineWidth), y);
             } else {
