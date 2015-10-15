@@ -50,7 +50,7 @@ public class NourishInfo {
         }
 
         try {
-            JpegReader reader = new JpegReader();
+            JPEGReader reader = new JPEGReader();
             BufferedImage sourceImg;
 
             sourceImg = reader.readImage(new File("src/pdf-resourses/temp/the_right_bite.jpg"));

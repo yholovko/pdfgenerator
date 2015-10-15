@@ -50,7 +50,7 @@ public class WatkinsInfo {
         }
 
         try {
-            JpegReader reader = new JpegReader();
+            JPEGReader reader = new JPEGReader();
             BufferedImage sourceImg;
 
             sourceImg = reader.readImage(new File("src/pdf-resourses/temp/mudras.jpg"));
