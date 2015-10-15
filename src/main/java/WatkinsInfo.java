@@ -14,7 +14,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class WatkinsInfo {
     public static final Color WATKINS_MAIN_COLOR = new Color(0x000000);
@@ -26,13 +30,22 @@ public class WatkinsInfo {
     private PDFont robotoRegular;
     private float nextYPos;         //equals lastY + lineHeight
 
-    public void createPdf(String outputFileName) throws IOException {
+    /**
+     * @param outputFileName    A filename with the file extension ("file1.pdf")
+     * @param info              An object with all the fields filled in.
+     * @throws IOException
+     */
+    public void createPdf(String outputFileName, AditionalInformation info) throws IOException {
         PDDocument document = new PDDocument();
         PDPage page1 = new PDPage(PDRectangle.A4);
         PDRectangle rect = page1.getMediaBox();
         document.addPage(page1);
 
         PDPageContentStream contentStream = new PDPageContentStream(document, page1);
+        JPEGReader jpegReader = new JPEGReader();
+        FileDownloader fileDownloader = new FileDownloader();
+        String coverPictureFilename;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMMM yyyy", Locale.US);
 
         try {
             robotoLight = PDType0Font.load(document, new FileInputStream(new File("src/pdf-resourses/roboto-ttf/Roboto-Light.ttf")));
@@ -43,117 +56,118 @@ public class WatkinsInfo {
         }
 
         try {
-            PDImageXObject ximage = PDImageXObject.createFromFile(new File("src/pdf-resourses/temp/Watkins_Logo_original.jpg"), document);
-            contentStream.drawImage(ximage, 59.52f, rect.getHeight() - 60.00f - 42.51f, 60.00f, 60.00f);
-        } catch (FileNotFoundException | NullPointerException e) {
+            fileDownloader.saveFile(Constants.WATKINS_LOGO_FILE_NAME + FileDownloader.getFileExtension(Constants.WATKINS_LOGO_URL), new URL(Constants.WATKINS_LOGO_URL));
+            PDImageXObject logoImg;
+
+            if (FileDownloader.getFileExtension(Constants.WATKINS_LOGO_URL).equals(".jpg")) {           //draw logo
+                BufferedImage sourceImg;
+                sourceImg = jpegReader.readImage(new File(Constants.FILE_SAVING_DIR + Constants.WATKINS_LOGO_FILE_NAME + ".jpg"));
+                logoImg = JPEGFactory.createFromImage(document, sourceImg);
+            } else {
+                logoImg = PDImageXObject.createFromFile(new File(Constants.FILE_SAVING_DIR + Constants.WATKINS_LOGO_FILE_NAME + FileDownloader.getFileExtension(Constants.WATKINS_LOGO_URL)), document);
+            }
+            contentStream.drawImage(logoImg, 59.52f, rect.getHeight() - 60.00f - 42.51f, 60.00f, 60.00f);
+        } catch (FileNotFoundException | NullPointerException | ImageReadException | IllegalArgumentException e) {
             e.printStackTrace();
         }
 
         try {
-            JPEGReader reader = new JPEGReader();
-            BufferedImage sourceImg;
+            coverPictureFilename = info.getTitle().replace(" ", "") + new Date().getTime() + FileDownloader.getFileExtension(info.getCoverPicture());    //save unique cover fileName
+            fileDownloader.saveFile(coverPictureFilename, new URL(info.getCoverPicture()));
+            PDImageXObject coverImg;
 
-            sourceImg = reader.readImage(new File("src/pdf-resourses/temp/mudras.jpg"));
+            if (FileDownloader.getFileExtension(coverPictureFilename).equals(".jpg")) {                 //draw cover
+                BufferedImage sourceImg;
+                sourceImg = jpegReader.readImage(new File(Constants.FILE_SAVING_DIR + coverPictureFilename));
+                coverImg = JPEGFactory.createFromImage(document, sourceImg);
+            } else {
+                coverImg = PDImageXObject.createFromFile(new File(Constants.FILE_SAVING_DIR + coverPictureFilename), document);
+            }
+            float scale = coverImg.getWidth() / 128.01f;
+            float height = coverImg.getHeight() / scale;
+            contentStream.drawImage(coverImg, 418.39f, rect.getHeight() - height - 42.51f, 128.01f, height);
 
-            PDImageXObject ximage = JPEGFactory.createFromImage(document, sourceImg);
-            float scale = ximage.getWidth() / 128.01f;
-            float height = ximage.getHeight() / scale;
-
-            contentStream.drawImage(ximage, 418.39f, rect.getHeight() - height - 42.51f, 128.01f, height);
-        } catch (FileNotFoundException | NullPointerException | ImageReadException e) {
+        } catch (FileNotFoundException | NullPointerException | ImageReadException | IllegalArgumentException e) {
             e.printStackTrace();
+
+            coverPictureFilename = Constants.NO_IMAGE_FILENAME;                        //load default cover
+            PDImageXObject coverImg;
+
+            BufferedImage sourceImg = null;
+            try {
+                sourceImg = jpegReader.readImage(new File(Constants.FILE_SAVING_DIR + coverPictureFilename));
+            } catch (ImageReadException e1) {
+                e1.printStackTrace();
+            }
+            coverImg = JPEGFactory.createFromImage(document, sourceImg);
+
+            float scale = coverImg.getWidth() / 128.01f;
+            float height = coverImg.getHeight() / scale;
+            contentStream.drawImage(coverImg, 418.39f, rect.getHeight() - height - 42.51f, 128.01f, height);
         }
 
         drawMultiLineText("Watkins", 162.70f, rect.getHeight() - 56.97f, 248, page1, contentStream, robotoLight, 18, WATKINS_PRIMARY_COLOR, 1.2f * 18, 2, false, false);
         drawMultiLineText("Advance Information", 162.70f, rect.getHeight() - 56.97f - 1.2f * 18, 248, page1, contentStream, robotoLight, 18, WATKINS_PRIMARY_COLOR, 1.2f * 18, 2, false, false);
-        drawMultiLineText("Mudras for Modern Life", 59.52f, rect.getHeight() - 139.18f, 351, page1, contentStream, robotoLight, 22, WATKINS_MAIN_COLOR, 1.2f * 22, 0f, false, false);
-        drawMultiLineText("Boost your health, re-energize your life, enhance your yoga and deepen your meditation", 59.52f, nextYPos + ((1.2f * 22 - 1.2f * 13) / 2), 351, page1, contentStream, robotoLight, 13, WATKINS_PRIMARY_COLOR, 1.5f * 13, 0f, false, false);
-        drawMultiLineText("By Swami Saradananda", 59.52f, nextYPos - 0.5f * 13, 351, page1, contentStream, robotoLight, 12, WATKINS_MAIN_COLOR, 1.2f * 12, 0f, false, false);
-
-        drawMultiLineText("This new, definitive, fully illustrated guide to the ancient art of mudras provides a highly " +
-                "practical and inspirational overview of how to use subtle yogic hand gestures to " +
-                "revitalize every aspect of your life", 59.52f, nextYPos - 0.6f * 13, 351, page1, contentStream, robotoBold, 9, WATKINS_PRIMARY_COLOR, 1.6f * 9, 0f, false, false);
+        drawMultiLineText(info.getTitle(), 59.52f, rect.getHeight() - 139.18f, 351, page1, contentStream, robotoLight, 22, WATKINS_MAIN_COLOR, 1.2f * 22, 0f, false, false);
+        drawMultiLineText(info.getSubtitle(), 59.52f, nextYPos + ((1.2f * 22 - 1.2f * 13) / 2), 351, page1, contentStream, robotoLight, 13, WATKINS_PRIMARY_COLOR, 1.5f * 13, 0f, false, false);
+        drawMultiLineText(info.getAuthorName(), 59.52f, nextYPos - 0.5f * 13, 351, page1, contentStream, robotoLight, 12, WATKINS_MAIN_COLOR, 1.2f * 12, 0f, false, false);
+        drawMultiLineText(info.getPromotinalHeadline(), 59.52f, nextYPos - 0.6f * 13, 351, page1, contentStream, robotoBold, 9, WATKINS_PRIMARY_COLOR, 1.6f * 9, 0f, false, false);
 
         drawMultiLineText("SALES POINTS:", 59.52f, nextYPos + ((1.6f * 9) / 2) - 1.6f * 9 - 1, 351, page1, contentStream, robotoBold, 11, WATKINS_PRIMARY_COLOR, 1.2f * 11, 0f, false, false);
-
-        ArrayList<String> list = new ArrayList<>();
-        list.add(0, "• The first full-colour photographic book on the ancient, life-enhancing art of mudras");
-        list.add(1, "• Experienced yoga and meditation teacher Swami Saradananda makes complex, spiritual concepts clear, accessible and relevant to modern life");
-        list.add(2, "• Each chapter focuses on a key holistic benefit that will appeal to experienced MBS seekers and holistic health fans alike");
-        for (int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < info.getSalesPoints().size(); i++) {
             if (i == 0) {
-                drawMultiLineText(list.get(i), 59.52f, nextYPos - 3, 351, page1, contentStream, robotoLight, 9, WATKINS_SECONDARY_COLOR, 1.6f * 9, 0f, false, false);
+                drawMultiLineText(info.getSalesPoints().get(i), 59.52f, nextYPos - 3, 351, page1, contentStream, robotoLight, 9, WATKINS_SECONDARY_COLOR, 1.6f * 9, 0f, false, false);
             } else {
-                drawMultiLineText(list.get(i), 59.52f, nextYPos, 351, page1, contentStream, robotoLight, 9, WATKINS_SECONDARY_COLOR, 1.6f * 9, 0f, false, false);
+                drawMultiLineText(info.getSalesPoints().get(i), 59.52f, nextYPos, 351, page1, contentStream, robotoLight, 9, WATKINS_SECONDARY_COLOR, 1.6f * 9, 0f, false, false);
             }
         }
 
         drawMultiLineText("SYNOPSIS:", 59.52f, nextYPos + ((1.6f * 9) / 2) - 1.6f * 9 - 1, 351, page1, contentStream, robotoBold, 11, WATKINS_PRIMARY_COLOR, 1.2f * 11, 0f, false, false);
-
-        String description = "In this new, beautifully presented guide to the ancient art of mudras – an often overlooked Eastern practice that involves making established hand gestures to direct subtle energy to boost health and wellbeing – readers will discover how to integrate more than 60 mudras into their daily life and/or yoga and meditation practice for increased vitality and inner peace.\n" +
-                "After introductory chapters laying the foundation of mudras, the six central chapters show why and how to do the mudras themselves. Each chapter is dedicated to a different part of the hand and its corresponding element – fire (thumb), air (index finger), ether (middle finger), earth (ring finger), water (little finger) and mind (palm) – focusing on each element’s holistic benefits, whether boosting inner strength, relieving stress, enhancing creativity or increasing concentration. In addition, each mudra entry is enhanced with an accompanying chant, meditation, pranayama, asana, visualization, or personal report about the mudra's benefits.\n" +
-                "The book then ends with a series of highly useful mudra routines for a range of health issues, both physical and emotional – from anxiety and chronic fatigue to arthritis and headaches. There’s genuinely something for everyone in this beautiful new book on the health-enhancing art of mudras.\n" +
-                "\n";
-
-        String[] parts = description.split("\n");
-
-        for (int i = 0; i < parts.length; i++) {
+        String[] synopsis = info.getSynopsis().split("\n");    //split paragraphs
+        for (int i = 0; i < synopsis.length; i++) {
             if (i == 0) {
-                drawMultiLineText(parts[i], 59.52f, nextYPos - 3, 351 - 11, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, false, false); //1st line without paragraph
+                drawMultiLineText(synopsis[i], 59.52f, nextYPos - 3, 351 - 11, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, false, false); //1st line without paragraph
             } else {
-                drawMultiLineText(parts[i], 59.52f, nextYPos, 351 - 11, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, true, false);
+                drawMultiLineText(synopsis[i], 59.52f, nextYPos, 351 - 11, page1, contentStream, robotoLight, 9, WATKINS_MAIN_COLOR, 1.6f * 9, 0f, true, false);
             }
         }
 
         drawMultiLineText("© Watkins enquiries@watkinspublishing.com", 85.03f, rect.getHeight() - 792.47f, (int) rect.getWidth(), page1, contentStream, robotoLight, 8, WATKINS_MAIN_COLOR, 1.2f * 8, 0f, false, false);
         drawMultiLineText("Angel Business Club 359 Goswell Rd London  EC1V 7JL Phone: 0207 323 2229 AI generated by Bibliocloud on 12 October 2015", 85.03f, nextYPos, (int) rect.getWidth(), page1, contentStream, robotoLight, 8, WATKINS_MAIN_COLOR, 1.2f * 8, 0f, false, false);
 
-        drawMultiLineText("ISBN: 9781780289984", 418.39f, rect.getHeight() - 268.15f, 147, page1, contentStream, robotoRegular, 9, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
-        drawMultiLineText("Published: 15 OCTOBER 2015", 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
-        drawMultiLineText("Price: £12.99", 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
+        drawMultiLineText("ISBN: " + info.getIsbn(), 418.39f, rect.getHeight() - 268.15f, 147, page1, contentStream, robotoRegular, 9, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
+        drawMultiLineText("Published: " + simpleDateFormat.format(info.getPublicationDate()).toUpperCase(), 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
+        drawMultiLineText("Price: £" + info.getPrice(), 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
 
         drawMultiLineText("CATEGORY", 418.39f, nextYPos - 7.3f, 147, page1, contentStream, robotoBold, 9, WATKINS_PRIMARY_COLOR, 1.2f * 9, 0f, false, true);
-
-        String category = "(BIC) VXA\n" +
-                "(BISAC) BODY, MIND & SPIRIT /\n" +
-                "Inspiration & Personal Growth\n";
-        String[] catParts = category.split("\n");
+        String[] catParts = info.getCategory().split("\n");
         for (String catPart : catParts) {
             drawMultiLineText(catPart, 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
         }
 
         drawMultiLineText("BINDING", 418.39f, nextYPos - 7.3f, 147, page1, contentStream, robotoBold, 9, WATKINS_PRIMARY_COLOR, 1.2f * 9, 0f, false, true);
-
-        String binding = "Paperback / softback\n" +
-                "With flaps";
-        String[] bindingParts = binding.split("\n");
+        String[] bindingParts = info.getBinding().split("\n");
         for (String bindingPart : bindingParts) {
             drawMultiLineText(bindingPart, 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
         }
 
         drawMultiLineText("FORMAT", 418.39f, nextYPos - 7.3f, 147, page1, contentStream, robotoBold, 9, WATKINS_PRIMARY_COLOR, 1.2f * 9, 0f, false, true);
-        drawMultiLineText("235mm x 162mm", 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
+        drawMultiLineText(info.getFormat(), 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
 
         drawMultiLineText("EXTENT", 418.39f, nextYPos - 7.3f, 147, page1, contentStream, robotoBold, 9, WATKINS_PRIMARY_COLOR, 1.2f * 9, 0f, false, true);
-        drawMultiLineText("160pp", 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
+        drawMultiLineText(info.getExtent(), 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
 
         drawMultiLineText("ILLUSTRATIONS", 418.39f, nextYPos - 7.3f, 147, page1, contentStream, robotoBold, 9, WATKINS_PRIMARY_COLOR, 1.2f * 9, 0f, false, true);
-
-        String illustrations = "A combination of specially\n" +
-                "commissioned photography and\n" +
-                "evocative artwork";
-        String[] illustrationsParts = illustrations.split("\n");
+        String[] illustrationsParts = info.getIllustrations().split("\n");
         for (String illustrationsPart : illustrationsParts) {
             drawMultiLineText(illustrationsPart, 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
         }
 
         drawMultiLineText("AUTHOR LOCATION", 418.39f, nextYPos - 7.3f, 147, page1, contentStream, robotoBold, 9, WATKINS_PRIMARY_COLOR, 1.2f * 9, 0f, false, true);
-        drawMultiLineText("London", 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
+        drawMultiLineText(info.getAuthorLocation(), 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
 
         drawMultiLineText("About the author:", 418.39f, nextYPos - 7.3f, 147, page1, contentStream, robotoBold, 9, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
-
-        String aboutAuthor = "Swami Saradananda is an internationally renowned yoga and meditation teacher and the author of a number of books, including Chakra Meditation, The Power of Breath and The Essential Guide to Chakras. Having worked for almost 30 years with the International Sivananda Yoga Vedanta Centres as a senior teacher in New York, London and Delhi, she is now based in London, teaches yoga and meditation worldwide, and leads pilgrimages to India.";
-        String[] aboutAuthorParts = aboutAuthor.split("\n");
+        String[] aboutAuthorParts = info.getBio().split("\n");
         for (String aboutAuthorPart : aboutAuthorParts) {
             drawMultiLineText(aboutAuthorPart, 418.39f, nextYPos, 147, page1, contentStream, robotoRegular, 8, WATKINS_SECONDARY_COLOR, 1.2f * 9, 0f, false, true);
         }
@@ -161,6 +175,11 @@ public class WatkinsInfo {
         contentStream.close();
         document.save(outputFileName);
         document.close();
+
+        fileDownloader.deleteFile(Constants.WATKINS_LOGO_FILE_NAME + FileDownloader.getFileExtension(Constants.WATKINS_LOGO_URL));      //delete downloaded files
+        if (!coverPictureFilename.equals(Constants.NO_IMAGE_FILENAME)) {
+            fileDownloader.deleteFile(coverPictureFilename);
+        }
     }
 
     /**
