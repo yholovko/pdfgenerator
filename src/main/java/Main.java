@@ -7,9 +7,8 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws ParseException, IOException {
-        new PDF("Watkins" ,"watkins.pdf", getAdditionalInformation(), new Color(0x000000), new Color(0x009999), new Color(0x6A5F55)).create();
-        new PDF("Nourish" ,"nourish.pdf", getAdditionalInformation(), new Color(0x000000), new Color(0xCD1F20), new Color(0x6A5F55)).create();
-        new PDF("Nourish" ,"nourish.pdf", getAdditionalInformation(), new Color(0x000000), new Color(0xCD1F20), new Color(0x6A5F55)).create();
+        new PDF(Constants.WATKINS ,"watkins.pdf", getAdditionalInformation(), new Color(0x000000), new Color(0x009999), new Color(0x6A5F55)).create();
+        new PDF(Constants.NOURISH ,"nourish.pdf", getAdditionalInformation(), new Color(0x000000), new Color(0xCD1F20), new Color(0x6A5F55)).create();
     }
 
     public static AditionalInformation getAdditionalInformation() throws ParseException {
