@@ -67,12 +67,11 @@ public class JPEGReader {
         JpegImageParser parser = new JpegImageParser();
         ByteSource byteSource = new ByteSourceFile(file);
         @SuppressWarnings("rawtypes")
-        ArrayList segments = parser.readSegments(byteSource, new int[] { 0xffee }, true);
+        ArrayList segments = parser.readSegments(byteSource, new int[]{0xffee}, true);
         if (segments != null && segments.size() >= 1) {
             UnknownSegment app14Segment = (UnknownSegment) segments.get(0);
             byte[] data = app14Segment.bytes;
-            if (data.length >= 12 && data[0] == 'A' && data[1] == 'd' && data[2] == 'o' && data[3] == 'b' && data[4] == 'e')
-            {
+            if (data.length >= 12 && data[0] == 'A' && data[1] == 'd' && data[2] == 'o' && data[3] == 'b' && data[4] == 'e') {
                 hasAdobeMarker = true;
                 int transform = app14Segment.bytes[11] & 0xff;
                 if (transform == 2)
@@ -98,9 +97,12 @@ public class JPEGReader {
                 int m = (int) (y - 0.34414 * cb - 0.71414 * cr + 135.95984);
                 y = (int) (y + 1.772 * cb - 226.316);
 
-                if (c < 0) c = 0; else if (c > 255) c = 255;
-                if (m < 0) m = 0; else if (m > 255) m = 255;
-                if (y < 0) y = 0; else if (y > 255) y = 255;
+                if (c < 0) c = 0;
+                else if (c > 255) c = 255;
+                if (m < 0) m = 0;
+                else if (m > 255) m = 255;
+                if (y < 0) y = 0;
+                else if (y > 255) y = 255;
 
                 pixelRow[x] = 255 - c;
                 pixelRow[x + 1] = 255 - m;
@@ -126,7 +128,7 @@ public class JPEGReader {
 
     public static BufferedImage convertCmykToRgb(Raster cmykRaster, ICC_Profile cmykProfile) throws IOException {
         if (cmykProfile == null) {
-            cmykProfile = ICC_Profile.getInstance(new FileInputStream(new File("src/jpeg-render/ISOcoated_v2_300_eci.icc")));
+            cmykProfile = ICC_Profile.getInstance(new FileInputStream(new File(Constants.PDF_RESOURCES + "/jpeg-render/ISOcoated_v2_300_eci.icc")));
         }
 
         if (cmykProfile.getProfileClass() != ICC_Profile.CLASS_DISPLAY) {
@@ -150,9 +152,9 @@ public class JPEGReader {
     }
 
     static void intToBigEndian(int value, byte[] array, int index) {
-        array[index]   = (byte) (value >> 24);
-        array[index+1] = (byte) (value >> 16);
-        array[index+2] = (byte) (value >>  8);
-        array[index+3] = (byte) (value);
+        array[index] = (byte) (value >> 24);
+        array[index + 1] = (byte) (value >> 16);
+        array[index + 2] = (byte) (value >> 8);
+        array[index + 3] = (byte) (value);
     }
 }
