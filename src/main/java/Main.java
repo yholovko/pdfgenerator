@@ -3,10 +3,10 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        WatkinsInfo watkinsInfo = new WatkinsInfo();
+        NourishInfo nourishInfo = new NourishInfo();
 
         try {
-            watkinsInfo.createPdf("watkins.pdf");
+            nourishInfo.createPdf("nourish2.pdf");
         } catch (IOException e) {
             e.printStackTrace();
         }
