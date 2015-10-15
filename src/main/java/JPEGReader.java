@@ -126,7 +126,6 @@ public class JPEGReader {
 
     public static BufferedImage convertCmykToRgb(Raster cmykRaster, ICC_Profile cmykProfile) throws IOException {
         if (cmykProfile == null) {
-            System.out.println("(cmykProfile == null)");
             cmykProfile = ICC_Profile.getInstance(new FileInputStream(new File("src/jpeg-render/ISOcoated_v2_300_eci.icc")));
         }
 
