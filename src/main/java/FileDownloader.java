@@ -7,7 +7,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 public class FileDownloader {
-    public boolean saveFile(String fileName, URL download) {
+    public static void saveFile(String fileName, URL download) {
         new File(Constants.FILE_SAVING_DIR).mkdirs();
 
         try (FileOutputStream fos = new FileOutputStream(Constants.FILE_SAVING_DIR + fileName)) {
@@ -18,17 +18,15 @@ public class FileDownloader {
             ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
-            return true;
         } catch (IOException e) {
             e.printStackTrace();
             new File(Constants.FILE_SAVING_DIR + fileName).delete();
+            throw new RuntimeException(e.getMessage());
         }
-
-        return false;
     }
 
-    public boolean deleteFile(String fileName){
-        return new File(Constants.FILE_SAVING_DIR + fileName).delete();
+    public static void deleteFile(String fileName){
+        new File(Constants.FILE_SAVING_DIR + fileName).delete();
     }
 
     public static String getFileExtension(String url){
