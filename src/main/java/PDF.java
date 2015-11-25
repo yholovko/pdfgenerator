@@ -112,7 +112,7 @@ public class PDF {
             if (i == 0) {       //1st line without paragraph
                 drawMultiLineText(synopsis[i], Constants.PAGE_LEFT_MARGIN, lastYPos - Constants.SYNOPSIS_TOP_MARGIN, Constants.FIRST_COLUMN_ALLOWED_WIDTH, contentStream, robotoLight, Constants.SYNOPSIS_FONT_SIZE, mainColor, Constants.SYNOPSIS_LINE_HEIGHT, 0f, false, false);
             } else {
-                drawMultiLineText(synopsis[i], Constants.PAGE_LEFT_MARGIN, lastYPos - Constants.SYNOPSIS_TOP_MARGIN, Constants.FIRST_COLUMN_ALLOWED_WIDTH - (int)Constants.PARAGRAPH_SIZE, contentStream, robotoLight, Constants.SYNOPSIS_FONT_SIZE, mainColor, Constants.SYNOPSIS_LINE_HEIGHT, 0f, true, false);
+                drawMultiLineText(synopsis[i], Constants.PAGE_LEFT_MARGIN, lastYPos - Constants.SYNOPSIS_TOP_MARGIN, Constants.FIRST_COLUMN_ALLOWED_WIDTH - (int) Constants.PARAGRAPH_SIZE, contentStream, robotoLight, Constants.SYNOPSIS_FONT_SIZE, mainColor, Constants.SYNOPSIS_LINE_HEIGHT, 0f, true, false);
             }
         }
 
@@ -186,8 +186,71 @@ public class PDF {
 
         // get all words from the text
         // keep in mind that words are separated by spaces -> "Lorem ipsum!!!!:)" -> words are "Lorem" and "ipsum!!!!:)"
-        String[] words = text.split(" ");
+        String[] words = text
+                .replaceAll(Constants.TAG_BR, String.format(" %s ", Constants.TAG_BR))
+                .replaceAll(Constants.TAG_P, String.format(" %s ", Constants.TAG_P))
+                .replaceAll(Constants.TAG_P_CLOSE, String.format(" %s ", Constants.TAG_P_CLOSE))
+                .replaceAll(Constants.TAG_UL, String.format(" %s ", Constants.TAG_UL))
+                .replaceAll(Constants.TAG_UL_CLOSE, String.format(" %s ", Constants.TAG_UL_CLOSE))
+                .replaceAll(Constants.TAG_LI, String.format(" %s ", Constants.TAG_LI))
+                .replaceAll(Constants.TAG_LI_CLOSE, String.format(" %s ", Constants.TAG_LI_CLOSE))
+                .split(" ");
         for (String word : words) {
+            if (word.isEmpty()) continue;
+
+            if (word.equals(Constants.TAG_BR)) {
+                lines.add(myLine);
+                myLine = "";
+                continue;
+            }
+
+            if (word.equals(Constants.TAG_P)) {
+                if (!myLine.isEmpty()) {
+                    lines.add(myLine);
+                }
+                myLine = "      ";
+                continue;
+            }
+
+            if (word.equals(Constants.TAG_P_CLOSE)) {
+                if (!myLine.isEmpty()) {
+                    lines.add(myLine);
+                }
+                myLine = "";
+                continue;
+            }
+
+            if (word.equals(Constants.TAG_UL)) {
+                if (!myLine.isEmpty()) {
+                    lines.add(myLine);
+                }
+                myLine = "";
+                continue;
+            }
+
+            if (word.equals(Constants.TAG_UL_CLOSE)) {
+                if (!myLine.isEmpty()) {
+                    lines.add(myLine);
+                }
+                myLine = "";
+                continue;
+            }
+
+            if (word.equals(Constants.TAG_LI)) {
+                if (!myLine.isEmpty()) {
+                    lines.add(myLine);
+                }
+                myLine = "     •";
+                continue;
+            }
+
+            if (word.equals(Constants.TAG_LI_CLOSE)) {
+                if (!myLine.isEmpty()) {
+                    lines.add(myLine);
+                }
+                myLine = "";
+                continue;
+            }
 
             if (!myLine.isEmpty()) {
                 myLine += " ";

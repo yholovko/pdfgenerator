@@ -6,6 +6,13 @@ public class Constants {
     public static final String WATKINS = "Watkins";
     public static final String NOURISH = "Nourish";
 
+    public static final String TAG_BR = "<br/>";
+    public static final String TAG_P = "<p>";
+    public static final String TAG_P_CLOSE = "</p>";
+    public static final String TAG_UL = "<ul>";
+    public static final String TAG_UL_CLOSE = "</ul>";
+    public static final String TAG_LI = "<li>";
+    public static final String TAG_LI_CLOSE = "</li>";
 
     public static final float PARAGRAPH_SIZE = 11.33f;
     public static final float PAGE_TOP_MARGIN = 42.51f;
