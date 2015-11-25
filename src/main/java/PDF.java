@@ -58,6 +58,8 @@ public class PDF {
         PDFont robotoLight = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Light.ttf")));
         PDFont robotoBold = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Bold.ttf")));
         PDFont robotoRegular = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Regular.ttf")));
+        PDFont robotoLightItalic = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-LightItalic.ttf")));
+        PDFont robotoBoldItalic = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-BoldItalic.ttf")));
 
         try {
             FileDownloader.saveFile(Constants.LOGO_FILE_NAME + FileDownloader.getFileExtension(info.getLogo()), new URL(info.getLogo()));
