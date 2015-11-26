@@ -13,6 +13,10 @@ public class Constants {
     public static final String TAG_UL_CLOSE = "</ul>";
     public static final String TAG_LI = "<li>";
     public static final String TAG_LI_CLOSE = "</li>";
+    public static final String TAG_B = "<b>";
+    public static final String TAG_B_CLOSE = "</b>";
+    public static final String TAG_I = "<i>";
+    public static final String TAG_I_CLOSE = "</i>";
 
     public static final float PARAGRAPH_SIZE = 11.33f;
     public static final float PAGE_TOP_MARGIN = 42.51f;
