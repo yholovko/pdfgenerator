@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Stack;
 
 public class PDF {
     private String documentTitle;
@@ -29,6 +30,12 @@ public class PDF {
     private Color secondaryColor;
 
     private float lastYPos;         //equals lastY
+
+    private PDFont robotoLight;
+    private PDFont robotoBold;
+    private PDFont robotoRegular;
+    private PDFont robotoLightItalic;
+    private PDFont robotoBoldItalic;
 
     /**
      * @param documentTitle  Nourish or Watkins
@@ -55,11 +62,11 @@ public class PDF {
         String coverPictureFilename = null;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMMM yyyy", Locale.US);
 
-        PDFont robotoLight = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Light.ttf")));
-        PDFont robotoBold = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Bold.ttf")));
-        PDFont robotoRegular = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Regular.ttf")));
-        PDFont robotoLightItalic = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-LightItalic.ttf")));
-        PDFont robotoBoldItalic = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-BoldItalic.ttf")));
+        robotoLight = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Light.ttf")));
+        robotoBold = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Bold.ttf")));
+        robotoRegular = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-Regular.ttf")));
+        robotoLightItalic = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-LightItalic.ttf")));
+        robotoBoldItalic = PDType0Font.load(document, new FileInputStream(new File(Constants.PDF_RESOURCES + "/roboto-ttf/Roboto-BoldItalic.ttf")));
 
         try {
             FileDownloader.saveFile(Constants.LOGO_FILE_NAME + FileDownloader.getFileExtension(info.getLogo()), new URL(info.getLogo()));
@@ -185,7 +192,7 @@ public class PDF {
 
         String myLine = "";
         boolean isFirstParagraphTemp = isFirstParagraph;
-
+        Stack<PDFont> fonts = new Stack<>();
         // get all words from the text
         // keep in mind that words are separated by spaces -> "Lorem ipsum!!!!:)" -> words are "Lorem" and "ipsum!!!!:)"
         String[] words = text
@@ -282,10 +289,10 @@ public class PDF {
 
         isFirstParagraph = isFirstParagraphTemp;
 
+        fonts.push(font);
         for (String line : lines) {
             contentStream.beginText();
             contentStream.appendRawCommands(String.valueOf(charSpacing) + " Tc\n");
-            contentStream.setFont(font, fontSize);
             contentStream.setNonStrokingColor(fontColor);
             if (isFirstParagraph) {
                 contentStream.newLineAtOffset(x + Constants.PARAGRAPH_SIZE, y);
@@ -301,7 +308,36 @@ public class PDF {
                 contentStream.newLineAtOffset(x, y);
             }
 
-            contentStream.showText(line);
+            for (String word : line.replaceAll(Constants.TAG_B, String.format(" %s ", Constants.TAG_B))
+                    .replaceAll(Constants.TAG_B_CLOSE, String.format(" %s ", Constants.TAG_B_CLOSE))
+                    .replaceAll(Constants.TAG_I, String.format(" %s ", Constants.TAG_I))
+                    .replaceAll(Constants.TAG_I_CLOSE, String.format(" %s ", Constants.TAG_I_CLOSE)).split(" ")) {
+                if (word.isEmpty()) continue;
+
+                if (word.equals(Constants.TAG_B)) {
+                    fonts.push(robotoBold);
+                    continue;
+                }
+                if (word.equals(Constants.TAG_B_CLOSE)) {
+                    fonts.pop();
+                    continue;
+                }
+                if (word.equals(Constants.TAG_I)) {
+                    fonts.push(robotoLightItalic);
+                    continue;
+                }
+                if (word.equals(Constants.TAG_I_CLOSE)) {
+                    fonts.pop();
+                    continue;
+                }
+                if (fonts.size() == 3) {
+                    contentStream.setFont(robotoBoldItalic, fontSize);
+                } else {
+                    contentStream.setFont(fonts.peek(), fontSize);
+                }
+                contentStream.drawString(word + " ");
+            }
+
             contentStream.endText();
             lastYPos = y;
             y -= lineHeight;
