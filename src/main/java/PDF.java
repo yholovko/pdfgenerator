@@ -267,21 +267,32 @@ public class PDF {
 
             // test the width of the current line + the current word
             int size;
+            boolean shouldBeAdded = true;
             if (isFirstParagraph) {
-                size = (int) ((fontSize * font.getStringWidth(myLine + word) / 1000) + Constants.PARAGRAPH_SIZE);
+                try {
+                    size = (int) ((fontSize * font.getStringWidth(myLine + word) / 1000) + Constants.PARAGRAPH_SIZE);
+                } catch (IllegalArgumentException e) {
+                    shouldBeAdded = false;
+                    size = (int) ((fontSize * font.getStringWidth(myLine) / 1000) + Constants.PARAGRAPH_SIZE);
+                }
                 isFirstParagraph = false;
             } else {
-                size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000);
+                try {
+                    size = (int) (fontSize * font.getStringWidth(myLine + word) / 1000);
+                } catch (IllegalArgumentException e) {
+                    shouldBeAdded = false;
+                    size = (int) (fontSize * font.getStringWidth(myLine) / 1000);
+                }
             }
             if (size > allowedWidth) {
                 // if the line would be too long with the current word, add the line without the current word
                 lines.add(myLine);
 
                 // and start a new line with the current word
-                myLine = word;
+                myLine = (shouldBeAdded) ? word : myLine;
             } else {
                 // if the current line + the current word would fit, add the current word to the line
-                myLine += word;
+                myLine = (shouldBeAdded) ? (myLine + word) : myLine;
             }
         }
         // add the rest to lines
@@ -333,7 +344,9 @@ public class PDF {
                 if (fonts.size() == 3) {
                     contentStream.setFont(robotoBoldItalic, fontSize);
                 } else {
-                    contentStream.setFont(fonts.peek(), fontSize);
+                    if (fonts.size() != 0) {
+                        contentStream.setFont(fonts.peek(), fontSize);
+                    }
                 }
                 contentStream.drawString(word + " ");
             }
